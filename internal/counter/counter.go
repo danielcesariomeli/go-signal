@@ -6,16 +6,24 @@ import (
 )
 
 type Service struct {
-	quit chan bool
+	quit      chan bool
+	isRunning bool
 }
 
-func NewService(quit chan bool) *Service {
+func NewService(quit chan bool, isRunnig bool) *Service {
 	return &Service{
-		quit: quit,
+		quit:      quit,
+		isRunning: isRunnig,
 	}
 }
 
 func (s *Service) StartCounter() error {
+	if s.isRunning {
+		fmt.Println("Counter already is running")
+		return nil
+	}
+	s.isRunning = true
+
 	go func() {
 		i := 1
 		for {
@@ -26,7 +34,7 @@ func (s *Service) StartCounter() error {
 			default:
 				fmt.Println(i)
 				i++
-				time.Sleep(200 * time.Millisecond)
+				time.Sleep(500 * time.Millisecond)
 			}
 		}
 	}()
@@ -34,6 +42,9 @@ func (s *Service) StartCounter() error {
 }
 
 func (s *Service) StopCounter() error {
-	s.quit <- true
+	s.isRunning = false
+	go func() {
+		s.quit <- false
+	}()
 	return nil
 }

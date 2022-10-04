@@ -12,7 +12,7 @@ import (
 
 func main() {
 
-	service := counter.NewService(make(chan bool))
+	service := counter.NewService(make(chan bool), false)
 	handler := handler.NewHandler(service)
 
 	router := mux.NewRouter()
